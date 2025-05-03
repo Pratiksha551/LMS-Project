@@ -9,8 +9,8 @@ const AddCourse = () => {
 
   const [courseTitle, setCourseTitle] = useState('');
   const [coursePrice, setCoursePrice] = useState(0);
-  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  // Removed unused 'image' state
   const [discount, setDiscount] = useState(0);
   const [chapters, setChapters] = useState([]); // Initialize chapters as an empty array
   const [showPopup, setShowPopup] = useState(false); // Define showPopup state
@@ -119,7 +119,7 @@ const AddCourse = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(file);
+      // Removed unused setImage call
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -205,7 +205,7 @@ const AddCourse = () => {
             <div key={chapterIndex} className='bg-white border rounded-lg mb-4'>
               <div className='flex justify-between items-center p-4 border-b'>
                 <div className='flex items-center'>
-                  <img onClick={() => handleChapter('toggle', chapter.chapterId)}
+                  <img
                     src={assets.dropdown_icon}
                     width={14}
                     alt="Dropdown Icon"
