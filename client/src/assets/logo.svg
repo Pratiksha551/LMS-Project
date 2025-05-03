@@ -1,0 +1,12 @@
+<svg width="112" height="33" viewBox="0 0 112 33" xmlns="http://www.w3.org/2000/svg">
+  <!-- Larger Rounded Graduation Cap Icon -->
+  <circle cx="15" cy="13" r="10" fill="#4F46E5"></circle>
+  <path d="M10 13L15 17L20 13L15 9L10 13Z" fill="white"></path>
+  <path d="M15 17V20" stroke="white" stroke-width="1.5"></path>
+  <circle cx="15" cy="20.5" r="1" fill="white"></circle>
+  
+  <!-- EduTrack Text -->
+  <text x="30" y="22" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#333">
+    EduTrack
+  </text>
+</svg>
