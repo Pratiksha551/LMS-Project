@@ -1,30 +1,39 @@
-import express from 'express'
-import cors from 'cors'
-import dotenv from 'dotenv'
-dotenv.config(); // Loads environment variables from a .env file
-import connectDB from './configs/mongodb.js';
-import { clerkWebhooks } from './models/webhooks.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./configs/mongodb.js";
+import { clerkWebhooks } from "./models/webhooks.js";
 
-//Initialize Express
-const app = express()
+dotenv.config(); // Load environment variables
 
-// connect to the databse
-await connectDB()
+// Initialize Express
+const app = express();
 
-//Middleware
-app.use(cors()) //we can connect our backend with other domain
+// Middleware
+app.use(cors());
+app.use(express.json()); // Parse JSON globally
 
-//Routes
-app.get('/', (req, res) => {
-    res.send("API working.......")
-})
+// Routes
+app.get("/", (req, res) => {
+    res.send("API working.......");
+});
 
-app.post('/clerk',express.json(),clerkWebhooks)
+app.post("/clerk", clerkWebhooks);
 
-//Port
-const  PORT = process.env.PORT || 5000
+// Start the server
+const startServer = async () => {
+    try {
+        await connectDB(); // Connect to the database
+        console.log("Database connected successfully");
 
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`);
-    
-})
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on ${PORT}`);
+        });
+    } catch (error) {
+        console.error("Error connecting to the database:", error.message);
+        process.exit(1); // Exit the process with failure
+    }
+};
+
+startServer();
