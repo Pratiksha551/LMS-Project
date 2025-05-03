@@ -22,23 +22,6 @@ app.get("/", (req, res) => {
 
 app.post("/clerk", clerkWebhooks);
 
-// // Start the server
-// const startServer = async () => {
-//     try {
-//         await connectDB(); // Connect to the database
-//         console.log("Database connected successfully");
-
-//         const PORT = process.env.PORT || 5000;
-//         app.listen(PORT, () => {
-//             console.log(`Server is running on ${PORT}`);
-//         });
-//     } catch (error) {
-//         console.error("Error connecting to the database:", error.message);
-//         process.exit(1); // Exit the process with failure
-//     }
-// };
-
-// startServer();
 const PORT = process.env.PORT || 5000
 app.listen(PORT,()=> {
     console.log(`Server is running on ${PORT}`);
