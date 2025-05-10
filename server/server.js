@@ -3,9 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./configs/mongodb.js";
 import { clerkMiddleware } from "@clerk/express";
-import { clerkWebhooks } from "./controllers/webhooks.js";
+import { clerkWebhooks, stripeWebhooks } from "./controllers/webhooks.js";
 import educatorRouter from "./routes/educator.routes.js";
 import connectCloudinary from "./configs/cloudinary.js";
+import courseRouter from "./routes/courseRoute.js";
+import userRouter from "./routes/userRoute.js";
 
 dotenv.config(); // Load environment variables
 
@@ -24,7 +26,9 @@ app.get("/", (req, res) => {
 
 app.post("/clerk", clerkWebhooks);
 app.use("/api/educator", educatorRouter);
-
+app.use("/api/course", courseRouter)
+app.use("/api/user",userRouter)
+app.use('/stripe',express.raw({ type: 'application/json'}), stripeWebhooks)
 // Start the server
 const startServer = async () => {
     try {
