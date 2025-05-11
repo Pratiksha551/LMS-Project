@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -20,18 +20,19 @@ const Player = () => {
   const [progressData, setProgressData] = useState(null);
   const [initialRating, setInitialRating] = useState(0);
 
-  const getCourseData = () => {
-    enrolledCourses.map((course) => {
+  // Memoized function to fetch course data
+  const getCourseData = useCallback(() => {
+    enrolledCourses.forEach((course) => {
       if (course._id === courseId) {
         setCourseData(course);
-        course.courseRatings.map((item) => {
+        course.courseRatings.forEach((item) => {
           if (item.userId === userData._id) {
             setInitialRating(item.rating);
           }
         });
       }
     });
-  };
+  }, [enrolledCourses, courseId, userData]);
 
   const toggleSection = (index) => {
     setOpenSections((prev) => ({
@@ -40,11 +41,35 @@ const Player = () => {
     }));
   };
 
+  // Memoized function to fetch course progress
+  const getCourseProgress = useCallback(async () => {
+    try {
+      const token = await getToken();
+      const { data } = await axios.post(
+        backendUrl + '/api/user/get-course-progress',
+        { courseId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (data.success) {
+        setProgressData(data.progressData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }, [backendUrl, courseId, getToken]);
+
   useEffect(() => {
     if (enrolledCourses.length > 0) {
       getCourseData();
     }
-  }, [enrolledCourses]);
+  }, [enrolledCourses, getCourseData]);
+
+  useEffect(() => {
+    getCourseProgress();
+  }, [getCourseProgress]);
 
   const markLectureAsCompleted = async (lectureId) => {
     try {
@@ -58,25 +83,6 @@ const Player = () => {
       if (data.success) {
         toast.success(data.message);
         getCourseProgress();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-
-  const getCourseProgress = async () => {
-    try {
-      const token = await getToken();
-      const { data } = await axios.post(
-        backendUrl + '/api/user/get-course-progress',
-        { courseId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (data.success) {
-        setProgressData(data.progressData);
       } else {
         toast.error(data.message);
       }
@@ -104,10 +110,6 @@ const Player = () => {
       toast.error(error.message);
     }
   };
-
-  useEffect(() => {
-    getCourseProgress();
-  }, []);
 
   return courseData ? (
     <>

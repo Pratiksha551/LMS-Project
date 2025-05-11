@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
 const lectureSchema = new mongoose.Schema({
-    lectureId: { type: String, required: true },
+    lectureId: { type: String, required: true }, // Marked as required
     lectureTitle: { type: String, required: true },
     lectureDuration: { type: Number, required: true },
     lectureUrl: { type: String, required: true },
     isPreviewFree: { type: Boolean, required: true },
-    lectureOrder: { type: Number, required: true }
+    lectureOrder: { type: Number, required: true } // Marked as required
 }, { _id: false });
 
 const chapterSchema = new mongoose.Schema({

@@ -6,10 +6,10 @@ const SearchBar = ({data}) => {
   const navigate = useNavigate()
   const [input, setInput] = useState(data ? data : '')
 
-  const onSearchHandler = (e) => {
-    e.preventDefault()
-    navigate('/course-list/' + input)
-  }
+ const onSearchHandler = (e) => {
+  e.preventDefault(); // Prevent form submission default behavior
+  navigate('/course-list/' + input);
+};
   return (
 
     <form onSubmit={onSearchHandler} className='max-w-xl w-full md:h14 h:12 flex items-center bg-white border border-gray-500/20 rounded'>
