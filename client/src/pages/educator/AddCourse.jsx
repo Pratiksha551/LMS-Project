@@ -1,16 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Import Quill styles
 import { assets } from '../../assets/assets';
 import uniqid from 'uniqid'; // Import uniqid for unique IDs
+import { AppContext } from '../../context/AppContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddCourse = () => {
+  const { backendUrl, getToken } = useContext(AppContext)
+  const quillRef = useRef(null);
   const editorRef = useRef(null);
 
   const [courseTitle, setCourseTitle] = useState('');
   const [coursePrice, setCoursePrice] = useState(0);
+  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  // Removed unused 'image' state
   const [discount, setDiscount] = useState(0);
   const [chapters, setChapters] = useState([]); // Initialize chapters as an empty array
   const [showPopup, setShowPopup] = useState(false); // Define showPopup state
@@ -98,14 +104,60 @@ const AddCourse = () => {
     }
   };
 
-  useEffect(() => {
-    // Initialize Quill only once
-    if (editorRef.current) {
-      new Quill(editorRef.current, {
-        theme: 'snow', // Use a valid theme
-      });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!image) {
+        toast.error('Thumbnail Not Selected');
+        return;
     }
-  }, []);
+
+    if (!courseTitle || chapters.length === 0) {
+        toast.error('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        const courseData = {
+            courseTitle,
+            courseDescription: quillRef.current.root.innerHTML,
+            coursePrice: Number(coursePrice),
+            discount: Number(discount),
+            courseContent: chapters,
+        };
+
+        const formData = new FormData();
+        formData.append('courseData', JSON.stringify(courseData));
+        formData.append('image', image);
+
+        const token = await getToken();
+        const { data } = await axios.post(backendUrl + '/api/educator/add-course', formData, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (data.success) {
+            toast.success(data.message);
+            setCourseTitle('');
+            setCoursePrice(0);
+            setDiscount(0);
+            setImage(null);
+            setImagePreview(null);
+            setChapters([]);
+            quillRef.current.root.innerHTML = '';
+        } else {
+            toast.error(data.message);
+        }
+    } catch (error) {
+        toast.error(error.message);
+    }
+};
+ useEffect(() => {
+    if (editorRef.current) {
+        quillRef.current = new Quill(editorRef.current, {
+            theme: 'snow',
+        });
+    }
+}, []);
 
   useEffect(() => {
     // Clean up object URL for image preview
@@ -116,17 +168,19 @@ const AddCourse = () => {
     };
   }, [imagePreview]);
 
-  const handleImageChange = (e) => {
+const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Removed unused setImage call
-      setImagePreview(URL.createObjectURL(file));
+        setImage(file); // Set the image state
+        setImagePreview(URL.createObjectURL(file)); // Set the preview
+    } else {
+        toast.error('Please select a valid image file.');
     }
-  };
+};
 
   return (
     <div className='h-screen overflow-scroll flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>
-      <form className='flex flex-col gap-4 max-w-md w-full text-gray-500'>
+      <form className='flex flex-col gap-4 max-w-md w-full text-gray-500' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-1'>
           <p>Course Title</p>
           <input
