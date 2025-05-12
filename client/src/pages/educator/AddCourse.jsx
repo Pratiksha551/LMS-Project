@@ -70,40 +70,41 @@ const AddCourse = () => {
 
   const handleAddLecture = () => {
     if (
-      lectureDetails.lectureTitle &&
-      lectureDetails.lectureDuration &&
-      lectureDetails.lectureUrl
+        lectureDetails.lectureTitle &&
+        lectureDetails.lectureDuration &&
+        lectureDetails.lectureUrl
     ) {
-      setChapters(
-        chapters.map((chapter) =>
-          chapter.chapterId === currentChapterId
-            ? {
-                ...chapter,
-                chapterContent: [
-                  ...chapter.chapterContent,
-                  {
-                    lectureTitle: lectureDetails.lectureTitle,
-                    lectureDuration: lectureDetails.lectureDuration,
-                    lectureUrl: lectureDetails.lectureUrl,
-                    isPreviewFree: lectureDetails.isPreviewFree,
-                  },
-                ],
-              }
-            : chapter
-        )
-      );
-      setShowPopup(false); // Close the popup
-      setLectureDetails({
-        lectureTitle: '',
-        lectureDuration: '',
-        lectureUrl: '',
-        isPreviewFree: false,
-      }); // Reset lecture details
+        setChapters(
+            chapters.map((chapter) =>
+                chapter.chapterId === currentChapterId
+                    ? {
+                          ...chapter,
+                          chapterContent: [
+                              ...chapter.chapterContent,
+                              {
+                                  lectureId: uniqid(), // Generate a unique ID for the lecture
+                                  lectureOrder: chapter.chapterContent.length + 1, // Set the order based on the number of lectures
+                                  lectureTitle: lectureDetails.lectureTitle,
+                                  lectureDuration: lectureDetails.lectureDuration,
+                                  lectureUrl: lectureDetails.lectureUrl,
+                                  isPreviewFree: lectureDetails.isPreviewFree,
+                              },
+                          ],
+                      }
+                    : chapter
+            )
+        );
+        setShowPopup(false); // Close the popup
+        setLectureDetails({
+            lectureTitle: '',
+            lectureDuration: '',
+            lectureUrl: '',
+            isPreviewFree: false,
+        }); // Reset lecture details
     } else {
-      alert('Please fill in all lecture details.');
+        alert('Please fill in all lecture details.');
     }
-  };
-
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -127,13 +128,13 @@ const AddCourse = () => {
         };
 
         const formData = new FormData();
-        formData.append('courseData', JSON.stringify(courseData));
-        formData.append('image', image);
+formData.append('courseData', JSON.stringify(courseData));
+formData.append('image', image);
 
-        const token = await getToken();
-        const { data } = await axios.post(backendUrl + '/api/educator/add-course', formData, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+const token = await getToken();
+const { data } = await axios.post(backendUrl + '/api/educator/add-course', formData, {
+    headers: { Authorization: `Bearer ${token}` },
+});
 
         if (data.success) {
             toast.success(data.message);

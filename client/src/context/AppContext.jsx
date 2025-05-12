@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect, createContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
 import { useAuth, useUser } from "@clerk/clerk-react";
@@ -20,33 +20,28 @@ export const AppContextProvider = (props) => {
     const [enrolledCourses, setEnrolledcourses] = useState([]);
     const [userData, setUserData] = useState(null);
 
-    // Fetch all courses
-    const fetchAllCourses = async () => {
+    const fetchAllCourses = useCallback(async () => {
         try {
             const { data } = await axios.get(backendUrl + "/api/course/all");
-
             if (data.success) {
-                setAllCourses(data.course);
+                setAllCourses(data.courses);
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
             toast.error(error.message || "An unexpected error occurred");
         }
-    };
+    }, [backendUrl]);
 
-    // Fetch user data
-    const fetchUserData = async () => {
+    const fetchUserData = useCallback(async () => {
         if (user && user.publicMetadata && user.publicMetadata.role === "educator") {
             setIsEducator(true);
         }
         try {
             const token = await getToken();
-
             const { data } = await axios.get(backendUrl + "/api/user/data", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
             if (data.success) {
                 setUserData(data.user);
             } else {
@@ -55,11 +50,10 @@ export const AppContextProvider = (props) => {
         } catch (error) {
             toast.error(error.message || "An unexpected error occurred");
         }
-    };
+    }, [backendUrl, getToken, user]);
 
-    // Function to calculate average rating of course
     const calculateRatings = (course) => {
-        if (course.courseRatings.length === 0) {
+        if (!course.courseRatings || course.courseRatings.length === 0) {
             return 0;
         }
         let totalRating = 0;
@@ -69,7 +63,6 @@ export const AppContextProvider = (props) => {
         return Math.floor(totalRating / course.courseRatings.length);
     };
 
-    // Function to calculate course chapter time
     const calculateChapterTime = (chapter) => {
         let time = 0;
         chapter.chapterContent.forEach((lecture) => {
@@ -78,7 +71,6 @@ export const AppContextProvider = (props) => {
         return humanizeDuration(time * 60 * 1000, { units: ["h", "m"] });
     };
 
-    // Function to calculate course duration
     const calculateCourseDuration = (course) => {
         let time = 0;
         course.courseContent.forEach((chapter) => {
@@ -89,7 +81,6 @@ export const AppContextProvider = (props) => {
         return humanizeDuration(time * 60 * 1000, { units: ["h", "m"] });
     };
 
-    // Function to calculate number of lectures in the course
     const calculateNumberOfLectures = (course) => {
         let totalLectures = 0;
         course.courseContent.forEach((chapter) => {
@@ -100,34 +91,36 @@ export const AppContextProvider = (props) => {
         return totalLectures;
     };
 
-    // Fetch user enrolled courses
-    const fetchUserEnrolledCourses = async () => {
+    const fetchUserEnrolledCourses = useCallback(async () => {
         try {
             const token = await getToken();
             const { data } = await axios.get(backendUrl + "/api/user/enrolled-courses", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
             if (data.success) {
-                setEnrolledcourses(data.enrolledCourses.reverse());
+                if (Array.isArray(data.enrolledCourses)) {
+                    setEnrolledcourses(data.enrolledCourses.reverse());
+                } else {
+                    setEnrolledcourses([]);
+                }
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
             toast.error(error.message || "An unexpected error occurred");
         }
-    };
+    }, [backendUrl, getToken]);
 
     useEffect(() => {
         fetchAllCourses();
-    }, []);
+    }, [fetchAllCourses]);
 
     useEffect(() => {
         if (user) {
             fetchUserData();
-            fetchUserEnrolledCourses(); // Properly invoked
+            fetchUserEnrolledCourses();
         }
-    }, [user]);
+    }, [user, fetchUserData, fetchUserEnrolledCourses]);
 
     const value = {
         currency,

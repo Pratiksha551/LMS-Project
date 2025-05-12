@@ -20,11 +20,11 @@ const CourseCard = ({ course }) => {
       <img
         className="w-full"
         src={course.courseThumbnail || assets.defaultThumbnail}
-        alt={course.courseTitle || 'Course Thumbnail'}
+        alt={course.courseTitle || "Course Thumbnail"} // Ensure alt is a string
       />
       <div className="p-3 text-left">
         <h3 className="text-base font-semibold">{course.courseTitle}</h3>
-        <p className="text-gray-500">{course.educator?.name || 'Unknown Educator'}</p>
+        <p className="text-gray-500">{course.educator?.name || "Unknown Educator"}</p>
         <div className="flex items-center space-x-2">
           <p>{calculateRatings(course) || 0}</p>
           <div className="flex">

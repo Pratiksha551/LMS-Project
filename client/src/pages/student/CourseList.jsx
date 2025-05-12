@@ -16,18 +16,18 @@ const CourseList = () => {
   const [filteredCourses, setFilteresCourses] = useState([])
 
   useEffect(() => {
-    if(allCourses && allCourses.length > 0){
-      const tempCourses = allCourses.slice()
+    if (allCourses && allCourses.length > 0) {
+        const tempCourses = allCourses.slice();
 
-      input ? 
-      setFilteresCourses(
-        tempCourses.filter(
-          item => item.courseTitle.toLowerCase().includes(input.toLowerCase())
-        )
-      )
-      :setFilteresCourses(tempCourses)
+        input
+            ? setFilteresCourses(
+                  tempCourses.filter((item) =>
+                      item.courseTitle.toLowerCase().includes(input.toLowerCase())
+                  )
+              )
+            : setFilteresCourses(tempCourses);
     }
-  },[allCourses, input])
+}, [allCourses, input]);
 
   return (
     <>

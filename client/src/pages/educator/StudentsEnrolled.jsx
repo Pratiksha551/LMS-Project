@@ -1,35 +1,35 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import Loading from '../../components/student/Loading';
 import { AppContext } from '../../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const StudentsEnrolled = () => {
-
-  const {backendUrl, getToken, isEducator} = useContext(AppContext)
+  const { backendUrl, getToken, isEducator } = useContext(AppContext);
   const [enrolledstudents, setEnrolledStudents] = useState(null);
 
-  const fetchEnrolledStudents = async () => {
+  const fetchEnrolledStudents = useCallback(async () => {
     try {
-      const token = await getToken()
-      const {data} = await axios.get(backendUrl + '/api/educator/enrolled-students',{ headers: {Authorization: `Bearer ${token}`}})
-      if(data.success){
-        setEnrolledStudents(data.enrolledstudents.reverse())
-      }
-      else{
-        toast.error(data.message)
+      const token = await getToken();
+      const { data } = await axios.get(
+        backendUrl + '/api/educator/enrolled-students',
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data.success) {
+        setEnrolledStudents(data.enrolledstudents.reverse());
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
-  };
+  }, [backendUrl, getToken]);
 
   useEffect(() => {
-    if(isEducator){
+    if (isEducator) {
       fetchEnrolledStudents();
     }
-   
-  }, [isEducator]);
+  }, [isEducator, fetchEnrolledStudents]);
 
   return enrolledstudents ? (
     <div className='min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>
@@ -43,7 +43,6 @@ const StudentsEnrolled = () => {
               <th className='px-4 py-3 font-semibold hidden sm:table-cell'>Date</th>
             </tr>
           </thead>
-
           <tbody className='text-sm text-gray-500'>
             {enrolledstudents.length > 0 ? (
               enrolledstudents.map((item, index) => (

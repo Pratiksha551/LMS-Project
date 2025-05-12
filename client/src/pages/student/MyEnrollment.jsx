@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { Line } from 'rc-progress';
 import Footer from '../../components/student/Footer';
@@ -20,7 +20,7 @@ const MyEnrollment = () => {
 
     const [progressArray, setProgressArray] = useState([]);
 
-    const getCourseProgress = async () => {
+    const getCourseProgress = useCallback(async () => {
         try {
             const token = await getToken();
             const tempProgressArray = await Promise.all(
@@ -43,19 +43,19 @@ const MyEnrollment = () => {
         } catch (error) {
             toast.error(error.message);
         }
-    };
+    }, [enrolledCourses, backendUrl, getToken, calculateNoOfLectures]);
 
     useEffect(() => {
         if (userData) {
             fetchUserEnrolledCourses();
         }
-    }, [userData]);
+    }, [userData, fetchUserEnrolledCourses]);
 
     useEffect(() => {
         if (enrolledCourses && enrolledCourses.length > 0) {
             getCourseProgress();
         }
-    }, [enrolledCourses]);
+    }, [enrolledCourses, getCourseProgress]);
 
     return (
         <>

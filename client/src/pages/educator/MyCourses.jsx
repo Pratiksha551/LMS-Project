@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { AppContext } from '../../context/AppContext';
 import Loading from '../../components/student/Loading';
 import axios from 'axios';
@@ -9,24 +9,27 @@ const MyCourses = () => {
 
   const [courses, setCourses] = useState(null);
 
-  const fetchEducationCourses = async () => {
+  const fetchEducationCourses = useCallback(async () => {
     try {
-      const token = await getToken()
-      const {data} = await axios.get(backendUrl + '/api/educator/courses',{headers: { Authorization: `Bearer ${token}`}})
+      const token = await getToken();
+      const { data } = await axios.get(backendUrl + '/api/educator/courses', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      data.success && setCourses(data.course)
+      data.success && setCourses(data.course);
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
-  };
+  }, [backendUrl, getToken]);
 
   useEffect(() => {
-   if(isEducator){
-     fetchEducationCourses();
-   }
-  }, [isEducator]);
+    if (isEducator) {
+      fetchEducationCourses();
+    }
+  }, [isEducator, fetchEducationCourses]);
 
   return courses ? (
+    // ... JSX remains unchanged
     <div className='h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>
       <div className='w-full'>
         <h2 className='pb-4 text-lg font-medium'>My Courses</h2>
