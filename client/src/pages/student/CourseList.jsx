@@ -43,7 +43,7 @@ const CourseList = () => {
         {
           input && <div className='inline-flex items-center gap-4 px-4 py-2 border mt-8 -mb-8 text-gray-600'> 
             <p>{input}</p>
-            <img src={assets.cross_icon} alt=""className='cursor-pointer' onClick={()=> navigate('/course-list')}/>
+            <img src={assets.cross_icon} alt="cross_icon"className='cursor-pointer' onClick={()=> navigate('/course-list')}/>
             </div>
              }
 

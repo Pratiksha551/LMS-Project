@@ -7,26 +7,26 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 const Navbar = () => {
-  const { navigate, isEducator, backendUrl, setIsEducator, getToken  } = useContext(AppContext)
+  const { navigate, isEducator, backendUrl, setIsEducator, getToken } = useContext(AppContext)
 
   const isCourseListPage = location.pathname.includes('/course-list');
 
   const { openSignIn } = useClerk()
   const { user } = useUser()
 
-  const becomeEducator = async () =>{
+  const becomeEducator = async () => {
     try {
-      if(isEducator){
+      if (isEducator) {
         navigate('/educator')
         return;
       }
       const token = await getToken()
-      const { data } = await axios.get(backendUrl + '/api/educator/update-role',{headers: {Authorization: `Bearer ${token}`}})
+      const { data } = await axios.get(backendUrl + '/api/educator/update-role', { headers: { Authorization: `Bearer ${token}` } })
 
-      if(data.success){
+      if (data.success) {
         setIsEducator(true)
         toast.success(data.message)
-      }else{
+      } else {
         toast.success(data.message)
       }
     } catch (error) {
@@ -39,7 +39,7 @@ const Navbar = () => {
       <img onClick={() => navigate('/')} src={assets.logo} alt="Logo" className='w-28 lg:w-40 cursor-pointer ' />
       <div className='hidden md:flex items-center gap-5 text-gray-500'>
         <div className='flex items-center gap-5'>
-          {user && 
+          {user &&
             <>
               <button onClick={becomeEducator}>
                 {isEducator ? 'Educator Dashboard' : 'Become Educator'}
@@ -49,7 +49,7 @@ const Navbar = () => {
           }
         </div>
         {user ? <UserButton /> :
-         <button onClick={() => openSignIn()} className='bg-blue-600 text-white px-5 py-2 rounded-full'>
+          <button onClick={() => openSignIn()} className='bg-blue-600 text-white px-5 py-2 rounded-full'>
             Create Account
           </button>
         }
@@ -68,7 +68,7 @@ const Navbar = () => {
         {
           user ? <UserButton /> :
 
-            <button onClick={() => openSignIn()}><img src={assets.user_icon} alt
+            <button onClick={() => openSignIn()}><img src={assets.user_icon} alt="user_icon"
             /></button>
         }
       </div>
