@@ -30,14 +30,13 @@ const CourseDetails = () => {
   const fetchCourseData = useCallback(async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/course/${id}`);
-
       if (data.success) {
         setCourseData(data.courseData);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || 'Failed to fetch course data');
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to fetch course data');
+      toast.error(error.response?.data?.message || 'Failed to fetch course data');
     }
   }, [backendUrl, id]);
 
@@ -50,21 +49,25 @@ const CourseDetails = () => {
         return toast.warn('Already Enrolled');
       }
       const token = await getToken();
-
       const { data } = await axios.post(
         `${backendUrl}/api/user/purchase`,
         { courseId: courseData._id },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Origin: window.location.origin, // Add Origin header
+          },
+        }
       );
 
       if (data.success) {
         const { session_url } = data;
         window.location.replace(session_url);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || 'Failed to enroll in course');
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to enroll in course');
+      toast.error(error.response?.data?.message || 'Failed to enroll in course');
     }
   };
 
