@@ -3,6 +3,7 @@ import { Purchase } from "../models/Purchase.js";
 import Stripe from "stripe";
 import Course from "../models/Course.js";
 import { CourseProgress } from "../models/CourseProgress.js";
+import mongoose from "mongoose";
 
 // Get user data
 export const getUserData = async (req, res) => {
@@ -88,8 +89,18 @@ export const updateUserCourseProgress = async (req, res) => {
 export const purchaseCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
+
     const { origin } = req.headers;
     const userId = req.auth.userId;
+
+   if (!courseId) {
+  return res.status(400).json({ success: false, message: "Course ID is required" });
+}
+if (!mongoose.Types.ObjectId.isValid(courseId)) {
+  return res.status(400).json({ success: false, message: "Invalid Course ID" });
+}
+
+
 
     if (!origin) {
       return res.json({ success: false, message: "Origin header is missing" });
@@ -115,10 +126,13 @@ export const purchaseCourse = async (req, res) => {
     const purchaseData = {
       courseId: courseData._id,
       userId,
-      amount: (
-        courseData.coursePrice -
-        (courseData.discount * courseData.coursePrice) / 100
-      ).toFixed(2),
+     amount: Number(
+  (
+    courseData.coursePrice -
+    (courseData.discount * courseData.coursePrice) / 100
+  ).toFixed(2)
+)
+
     };
 
     const newPurchase = await Purchase.create(purchaseData);
@@ -160,9 +174,8 @@ export const purchaseCourse = async (req, res) => {
     });
 
     
+   res.json({ success: true, session_url: session.url });
 
-    // Return session.url as success_url in the response
-   res.json({ success: true, url: session.url }); // ✅ Return correct key
 
   } catch (error) {
     console.error("Error creating Stripe session:", error.message);
